@@ -5,7 +5,7 @@ import streamlit as st
 # 1. 페이지 기본 설정 및 디자인
 # ==========================================
 st.set_page_config(
-    page_title="마음 치료 취미 - 맞춤 여가 추천",
+    page_title="취미 모아 - 맞춤 여가 추천",
     page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -52,6 +52,7 @@ st.markdown(CSS_CODE, unsafe_allow_html=True)
 HOBBIES = [
     # 🎨 그림 / 미술 (6개)
     {
+        "id": "urban_sketch",
         "name": "어반 스케치 (Urban Sketching)",
         "category": "그림 / 미술",
         "location": "실외",
@@ -64,6 +65,7 @@ HOBBIES = [
         "steps": ["야외 카페나 공원 등 마음에 드는 스팟 찾기", "펜으로 윤곽선 빠르게 스케치하기", "워터브러시로 가볍게 색칠해 완성하기"]
     },
     {
+        "id": "tablet_drawing",
         "name": "태블릿 디지털 드로잉",
         "category": "그림 / 미술",
         "location": "실내",
@@ -76,6 +78,7 @@ HOBBIES = [
         "steps": ["기본 레이어와 브러시 개념 익히기", "유튜브 초보 튜토리얼 따라 그려보기", "나만의 캐릭터나 배경화면 만들기"]
     },
     {
+        "id": "oil_pastel",
         "name": "오일 파스텔 드로잉",
         "category": "그림 / 미술",
         "location": "실내",
@@ -88,6 +91,7 @@ HOBBIES = [
         "steps": ["기본 24색 세트 구매하기", "노을빛 하늘이나 과일 등 간단한 소재 선택", "손가락으로 부드럽게 문질러 블렌딩하기"]
     },
     {
+        "id": "acrylic_backdrop",
         "name": "아크릴 백드롭 페인팅",
         "category": "그림 / 미술",
         "location": "실내",
@@ -100,6 +104,7 @@ HOBBIES = [
         "steps": ["원하는 인테리어 컬러 조합 정하기", "나이프로 질감을 살려 캔버스 칠하기", "잘 말려서 방에 인테리어 소품으로 걸어두기"]
     },
     {
+        "id": "watercolor",
         "name": "투명 수채화 일러스트",
         "category": "그림 / 미술",
         "location": "실내",
@@ -112,6 +117,7 @@ HOBBIES = [
         "steps": ["물이 번지는 번지기 기법 연습하기", "단순한 잎사귀나 열매부터 스케치", "물조절 감각을 익히며 조심스럽게 채색하기"]
     },
     {
+        "id": "oil_painting",
         "name": "오일 페인팅 (유화) 클래스",
         "category": "그림 / 미술",
         "location": "실내",
@@ -126,6 +132,7 @@ HOBBIES = [
 
     # ⚽ 운동 / 스포츠 (4개)
     {
+        "id": "climbing",
         "name": "실내 클라이밍 (볼더링)",
         "category": "운동 / 스포츠",
         "location": "실내",
@@ -138,6 +145,7 @@ HOBBIES = [
         "steps": ["실내 암벽장 일일 강습 신청", "기초 이동 자세 익히기", "초급 난이도 문제부터 하나씩 도전하기"]
     },
     {
+        "id": "running",
         "name": "러닝 및 마라톤",
         "category": "운동 / 스포츠",
         "location": "실외",
@@ -150,6 +158,7 @@ HOBBIES = [
         "steps": ["발에 맞는 쿠션감 좋은 러닝화 구매", "가까운 공원이나 러닝 코스 탐색", "20분 걷기와 뛰기를 반복하며 가볍게 시작"]
     },
     {
+        "id": "yoga_pilates",
         "name": "요가 / 필라테스",
         "category": "운동 / 스포츠",
         "location": "실내",
@@ -162,6 +171,7 @@ HOBBIES = [
         "steps": ["유튜브의 초보자용 요가 영상 따라하기", "기초 호흡법과 스트레칭 자세 익히기", "매일 아침 10분 스트레칭 습관화하기"]
     },
     {
+        "id": "tennis",
         "name": "실내 테니스 / 파델",
         "category": "운동 / 스포츠",
         "location": "실내",
@@ -176,6 +186,7 @@ HOBBIES = [
 
     # 🎵 음악 / 사운드 (3개)
     {
+        "id": "ukulele",
         "name": "우쿨렐레 연주",
         "category": "음악 / 사운드",
         "location": "실내",
@@ -183,11 +194,12 @@ HOBBIES = [
         "companion": "혼자",
         "time": "30분~1시간",
         "difficulty": "초급",
-        "desc": "기타보다 작고 줄이 4개뿐이라 입문이 매우 쉽습니다. 밝고 경쾌한 소리가 특징인 아기자기한 악기입니다.",
+        "desc": "기타보다 작고 줄이 4개뿐이라 입문이 매우 쉬운 아기자기한 악기입니다.",
         "prep": "우쿨렐레, 튜너",
         "steps": ["입문용 우쿨렐레 구매하기", "기본 C, G, Am, F 코드 잡기", "쉬운 가요 한 곡 완곡해보기"]
     },
     {
+        "id": "lp_collecting",
         "name": "LP 음반 수집 및 감상",
         "category": "음악 / 사운드",
         "location": "실내",
@@ -200,6 +212,7 @@ HOBBIES = [
         "steps": ["가까운 LP 카페 방문해 보기", "입문용 턴테이블 알아보기", "최애 아티스트의 첫 바이닐 구매하기"]
     },
     {
+        "id": "kalimba",
         "name": "칼림바 (Hand Piano) 연주",
         "category": "음악 / 사운드",
         "location": "실내",
@@ -214,6 +227,7 @@ HOBBIES = [
 
     # 🛠️ 공예 / 핸드메이드 (4개)
     {
+        "id": "tufting",
         "name": "터프팅 (Tufting) 러그 만들기",
         "category": "공예 / 핸드메이드",
         "location": "실내",
@@ -226,6 +240,7 @@ HOBBIES = [
         "steps": ["원하는 캐릭터나 무늬 도안 구상", "공방에서 터프팅 건 기본 작동법 스킬 익히기", "직접 실을 쏘아 실물 러그 완성하기"]
     },
     {
+        "id": "pottery",
         "name": "도자기 물레 체험",
         "category": "공예 / 핸드메이드",
         "location": "실내",
@@ -238,6 +253,7 @@ HOBBIES = [
         "steps": ["도예 공방 체험 예약", "물레 위에서 중심을 잡고 형태 만들기", "가마 구이기 과정을 거쳐 3~4주 후 수령"]
     },
     {
+        "id": "leather_craft",
         "name": "가죽 소품 (카드지갑) 만들기",
         "category": "공예 / 핸드메이드",
         "location": "실내",
@@ -247,9 +263,10 @@ HOBBIES = [
         "difficulty": "초급",
         "desc": "천연 가죽을 직접 재단하고 전통 새들 스티치 바느질을 통해 오래 쓸 수 있는 나만의 지갑을 만듭니다.",
         "prep": "가죽 공방 원데이 재료",
-        "steps": ["원하는 가죽 가죽 색상과 실 선택", "스티치 구멍 내기(치즐 작업)", "한 땀 한 땀 바느질하여 각인 넣기"]
+        "steps": ["원하는 가죽 색상과 실 선택", "스티치 구멍 내기(치즐 작업)", "한 땀 한 땀 바느질하여 각인 넣기"]
     },
     {
+        "id": "candle_making",
         "name": "소이 캔들 & 방향제 조향",
         "category": "공예 / 핸드메이드",
         "location": "실내",
@@ -264,6 +281,7 @@ HOBBIES = [
 
     # 📚 문화 / 요리 / 라이프 (3개)
     {
+        "id": "book_club",
         "name": "독서 모임 참여하기",
         "category": "문화 / 소셜",
         "location": "실내",
@@ -271,11 +289,12 @@ HOBBIES = [
         "companion": "함께",
         "time": "2시간",
         "difficulty": "초급",
-        "desc": "같은 책을 읽고 다양한 사람들과 시각과 생각을 공유하며 깊이 있는 다채로운 대화를 나누는 소모임 취미입니다.",
-        "prep": "지정 도서, 메인 메모장",
+        "desc": "같은 책을 읽고 다양한 사람들과 시각과 생각을 공유하며 깊이 있는 대화를 나누는 소모임 취미입니다.",
+        "prep": "지정 도서, 메모장",
         "steps": ["소모임이나 문토 앱에서 모임 검색", "지정 도서 읽고 인상 깊은 구절 메모", "모임에 참석해 의견 나누기"]
     },
     {
+        "id": "hand_drip",
         "name": "홈 핸드드립 커피",
         "category": "요리 / 가드닝",
         "location": "실내",
@@ -288,6 +307,7 @@ HOBBIES = [
         "steps": ["좋아하는 향미의 신선한 원두 준비", "알맞은 굵기로 원두 갈기", "뜸들이기와 드립 추출을 진행해 완벽한 커피 즐기기"]
     },
     {
+        "id": "gardening",
         "name": "반려식물 홈 가드닝",
         "category": "요리 / 가드닝",
         "location": "실내",
@@ -295,7 +315,7 @@ HOBBIES = [
         "companion": "혼자",
         "time": "20분",
         "difficulty": "초급",
-        "desc": "몬스테라, 스킨답서스 등 순한 식물들을 돌보며 마음의 휴식과 식물 돋아나는 푸르름을 느낍니다.",
+        "desc": "몬스테라, 스킨답서스 등 순한 식물들을 돌보며 마음의 휴식과 푸르름을 느낍니다.",
         "prep": "반려식물 화분, 분갈이 흙, 물뿌리개",
         "steps": ["우리 집 햇빛 환경에 맞는 식물 선택", "겉흙이 말랐을 때 적절히 물주기", "새 잎이 피어나는 과정 관찰하며 일기 작성"]
     }
@@ -403,7 +423,7 @@ else:
         """
         st.markdown(card_html, unsafe_allow_html=True)
         
-        with st.expander(f"🔍 {hobby['name']} 상세 시작 가이드 보기"):
+        with st.expander(f"🔍 {hobby['name']} 상세 가이드 & 도전하기"):
             c1, c2 = st.columns(2)
             with c1:
                 st.write("**🎒 필요 준비물**")
@@ -412,9 +432,31 @@ else:
                 st.write("**📊 난이도**")
                 st.caption(f"난이도 수준: {hobby['difficulty']}")
             
-            st.write("**🚀 시작하는 3단계**")
+            st.divider()
+            
+            # --- 시작하는 3단계 (체크리스트 + 진행도) ---
+            st.write("**🚀 시작하는 3단계 체크리스트**")
+            
+            # 체크 해제/체크 상태 관리
+            completed_count = 0
+            total_steps = len(hobby['steps'])
+            
             for idx, step in enumerate(hobby['steps'], 1):
-                st.write(f"{idx}. {step}")
+                key = f"chk_{hobby['id']}_{idx}"
+                # 체크박스 생성
+                is_checked = st.checkbox(f"{idx}단계: {step}", key=key)
+                if is_checked:
+                    completed_count += 1
+            
+            # 진행도 calculation & progress bar
+            progress_ratio = completed_count / total_steps
+            st.progress(progress_ratio)
+            
+            # 진행 상태 텍스트
+            if completed_count == total_steps:
+                st.success(f"🎉 축하합니다! {hobby['name']} 입문 준비가 완료되었습니다!")
+            else:
+                st.caption(f"진행도: {completed_count}/{total_steps} 단계 완료 ({int(progress_ratio * 100)}%)")
 
 st.markdown("---")
 st.caption("© 2026 취미 모아 - Streamlit으로 제작된 부드럽고 가벼운 여가 추천 앱")
