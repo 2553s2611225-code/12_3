@@ -5,7 +5,7 @@ import streamlit as st
 # 1. 페이지 기본 설정 및 디자인
 # ==========================================
 st.set_page_config(
-    page_title="취미 모아 - 맞춤 여가 추천",
+    page_title="마음 치료 취미 - 맞춤 여가 추천",
     page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded"
