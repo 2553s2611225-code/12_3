@@ -421,4 +421,3 @@ st.markdown("""
     당신의 감정은 소중하고, 당신은 존중받을 가치가 있습니다.
 </div>
 """, unsafe_allow_html=True)
-
