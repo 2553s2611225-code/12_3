@@ -57,7 +57,7 @@ st.markdown("""
         font-size: 0.95rem;
     }
     </style>
-""", unsafe_unsafe_html=True)
+""", unsafe_allow_html=True)
 
 
 # ==========================================
@@ -228,75 +228,5 @@ with col1:
 with col2:
     if st.button("🎲 무작위 뽑기", use_container_width=True):
         if filtered_hobbies:
-            random_hobby = random.choice(filtered_hobbies)
-            st.toast(f"오늘의 추천: {random_hobby['name']}!", icon="✨")
-
-# ----- AI 추천 선택 시 처리 -----
-if use_ai:
-    st.info("💡 AI 코치가 당신의 상황에 딱 맞는 독창적인 취미를 제안합니다.")
-    user_prompt = st.text_input("현재 기분이나 관심사를 적어주세요. (예: 스트레스가 많아서 조용히 집중할 게 필요해)", "")
-    
-    if st.button("AI 맞춤 분석 실행", type="primary"):
-        if not user_prompt:
-            st.warning("기분이나 상태를 입력해 주세요!")
-        else:
-            try:
-                # Gemini API 연동 (google-genai)
-                from google import genai
-                
-                api_key = st.secrets.get("GEMINI_API_KEY")
-                if not api_key:
-                    st.error("🔑 Secrets에 GEMINI_API_KEY가 설정되지 않았습니다.")
-                else:
-                    client = genai.Client(api_key=api_key)
-                    
-                    with st.spinner("AI가 최적의 취미를 찾고 있습니다..."):
-                        response = client.models.generate_content(
-                            model="gemini-2.5-flash-lite",
-                            contents=f"사용자 상태: '{user_prompt}'. 이 사용자에게 어울리는 예순, 운동, 음악, 공예 등의 분야 중 구체적인 취미 2가지를 추천해줘. 각 취미별로 이름, 추천 이유, 시작하는 법 1줄을 친절하게 작성해줘."
-                        )
-                        
-                        st.markdown("---")
-                        st.markdown("### 🤖 Gemini AI 추천 결과")
-                        st.write(response.text)
-                        st.markdown("---")
-            except Exception as e:
-                st.error(f"AI 추천을 가져오는 중 오류가 발생했습니다: {e}")
-
-# ----- 하단: 취미 목록 카드 출력 -----
-if not filtered_hobbies:
-    st.warning("선택하신 조건에 맞는 취미가 없습니다. 필터를 변경해 보세요!")
-else:
-    for hobby in filtered_hobbies:
-        # Custom HTML Card 형태로 출력
-        st.markdown(f"""
-            <div class="hobby-card">
-                <h3>{hobby['name']}</h3>
-                <div>
-                    <span class="tag">📁 {hobby['category']}</span>
-                    <span class="tag">📍 {hobby['location']}</span>
-                    <span class="tag">👥 {hobby['companion']}</span>
-                    <span class="tag">💰 {hobby['budget']}</span>
-                    <span class="tag">⏱️ {hobby['time']}</span>
-                </div>
-                <p style="margin-top: 12px; color: #4b5563;">{hobby['desc']}</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # 상세 보기 탭
-        with st.expander(f"🔍 {hobby['name']} 상세 시작 가이드 보기"):
-            c1, c2 = st.columns(2)
-            with c1:
-                st.write("**🎒 필요 준비물**")
-                st.info(hobby['prep'])
-            with c2:
-                st.write("**📊 난이도**")
-                st.caption(f"난이도 수준: {hobby['difficulty']}")
-            
-            st.write("**🚀 시작하는 3단계**")
-            for idx, step in enumerate(hobby['steps'], 1):
-                st.write(f"{idx}. {step}")
-
-# Footer
-st.markdown("---")
-st.caption("© 2026 취미 모아 - Streamlit으로 제작된 부드럽고 가벼운 여가 추천 앱")
+            random_hobby = random.choice(filtered_hobbies
+                                        
