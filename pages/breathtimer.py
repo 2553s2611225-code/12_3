@@ -8,17 +8,17 @@ st.set_page_config(
     layout="centered"
 )
 
-# 2. 스타일링 (커스텀 CSS)
+# 2. 커스텀 스타일 적용 (unsafe_allow_html 매개변수 명확화)
 st.markdown("""
     <style>
-    .main {
+    .stApp {
         background-color: #F7FAF9;
     }
-    .breath-box {
+    .breath-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 250px;
+        height: 260px;
         margin: 20px 0;
     }
     .breath-circle {
@@ -30,22 +30,20 @@ st.markdown("""
         color: white;
         font-weight: bold;
         font-size: 24px;
-        transition: all 1s ease-in-out;
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: all 0.9s ease-in-out;
     }
     </style>
-""", unsafe_style_html=True)
+""", unsafe_allow_html=True)
 
 # 3. 세션 상태 초기화
-if "session_running" not in st.session_state:
-    st.session_state.session_running = False
 if "history" not in st.session_state:
     st.session_state.history = []
 
 # 4. 헤더
 st.title("🧘 쉼(Breathing Space)")
 st.subheader("마음의 안정을 찾는 4-6 호흡법")
-st.caption("들이마시기 4초, 내쉬기 6초의 리듬으로 부교감 신경을 활성화하여 스트레스를 줄여줍니다.")
+st.caption("들이마시기 4초, 내쉬기 6초의 리듬으로 부교감 신경을 활성화하여 스트레스를 완화합니다.")
 
 st.divider()
 
@@ -63,12 +61,10 @@ with tab1:
 
     st.write("")
     
-    # 세션 시작/중지 버튼
+    # 세션 시작 버튼
     start_btn = st.button("▶️ 호흡 세션 시작하기", use_container_width=True, type="primary")
 
     if start_btn:
-        st.session_state.session_running = True
-        
         total_seconds = session_minutes * 60
         cycle_time = 10  # 들이마시기 4초 + 내쉬기 6초 = 10초
         cycles = total_seconds // cycle_time
@@ -88,12 +84,12 @@ with tab1:
                     # 동적 원 크기 조절 (100px -> 220px)
                     size = 100 + (s * 30)
                     circle_placeholder.markdown(f"""
-                        <div class="breath-box">
+                        <div class="breath-container">
                             <div class="breath-circle" style="width: {size}px; height: {size}px;">
                                 들이마시기
                             </div>
                         </div>
-                    """, unsafe_style_html=True)
+                    """, unsafe_allow_html=True)
                     
                     time.sleep(1)
                     
@@ -105,36 +101,36 @@ with tab1:
                     # 동적 원 크기 조절 (220px -> 100px)
                     size = 220 - (s * 20)
                     circle_placeholder.markdown(f"""
-                        <div class="breath-box">
+                        <div class="breath-container">
                             <div class="breath-circle" style="width: {size}px; height: {size}px; background: linear-gradient(135deg, #46CDCF 0%, #3D84A8 100%);">
                                 내쉬기
                             </div>
                         </div>
-                    """, unsafe_style_html=True)
+                    """, unsafe_allow_html=True)
                     
                     time.sleep(1)
 
                 # 진행률 업데이트
                 progress_bar.progress((cycle + 1) / cycles)
 
-            # 완료 상태
+            # 세션 완료
             status_text.markdown("🎉 **호흡 세션이 완료되었습니다!**")
             timer_text.empty()
             circle_placeholder.markdown("""
-                <div class="breath-box">
-                    <div class="breath-circle" style="width: 150px; height: 150px;">
+                <div class="breath-container">
+                    <div class="breath-circle" style="width: 150px; height: 150px; background: #3D84A8;">
                         완료!
                     </div>
                 </div>
-            """, unsafe_style_html=True)
+            """, unsafe_allow_html=True)
             
             st.balloons()
             
-            # 세션 완료 기록
+            # 세션 완료 기록 저장
             st.session_state.history.append({
                 "시간": time.strftime("%Y-%m-%d %H:%M"),
                 "목표 시간": f"{session_minutes}분",
-                "사전 스트레스": pre_stress
+                "사전 스트레스": f"{pre_stress} / 10"
             })
             
         except Exception as e:
