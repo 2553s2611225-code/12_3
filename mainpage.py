@@ -214,7 +214,20 @@ st.markdown("""
 
 .hobby p { color: #4C6749; }
 .quest p { color: #5F5A7D; }
-.rest p { color: #4C6974; }
+
+.rest p {
+    color: #4C6974;
+    line-height: 1.8;
+    margin-bottom: 9px;
+}
+
+.rest .site-emoji {
+    margin-bottom: 8px;
+}
+
+.rest h3 {
+    margin-bottom: 8px;
+}
 
 .card-caption {
     font-size: 13px;
