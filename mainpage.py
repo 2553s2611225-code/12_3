@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 st.set_page_config(
@@ -169,7 +168,8 @@ st.markdown("""
 .site-card {
     border-radius: 23px;
     padding: 24px 21px;
-    min-height: 265px;
+    height: 265px;
+    box-sizing: border-box;
     border: 1px solid rgba(72, 93, 70, 0.12);
     box-shadow: 0 7px 20px rgba(62, 80, 61, 0.045);
     margin-bottom: 12px;
@@ -302,7 +302,8 @@ div[data-testid="stLinkButton"] a:hover {
     }
 
     .site-card {
-        min-height: auto;
+        height: auto;
+        min-height: 265px;
         padding: 21px;
     }
 
