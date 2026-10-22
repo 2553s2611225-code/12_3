@@ -84,4 +84,219 @@ CSS = """
   height: 7px; background: rgba(255, 255, 255, 0.6); border-radius: 99px;
 }
 
-/* 이미지 계열에 어울리는 소프트 일
+/* 이미지 계열에 어울리는 소프트 일몰 컬러 파렛트 */
+.quest-card.yellow { background: linear-gradient(145deg, #ffe0b2 0%, #ffcc80 100%); color: #4e342e; }
+.quest-card.pink { background: linear-gradient(145deg, #f8bbd0 0%, #f48fb1 100%); color: #4a148c; }
+.quest-card.blue { background: linear-gradient(145deg, #e1bee7 0%, #ce93d8 100%); color: #311b92; }
+.quest-card.mint { background: linear-gradient(145deg, #ffd180 0%, #ffab40 100%); color: #3e2723; }
+
+.quest-title { font-size: 1.06rem; font-weight: 800; margin: 8px 0 7px; line-height: 1.25; }
+.quest-desc { font-size: .86rem; line-height: 1.45; min-height: 42px; }
+.quest-tag { font-size: .72rem; opacity: .88; margin-top: 8px; font-weight: 650; }
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.85); border: 1px solid #f8bbd0; border-radius: 28px;
+  padding: 18px 14px; text-align: center; margin: 10px 0 16px;
+  box-shadow: 0 10px 24px rgba(216, 112, 147, 0.12);
+  backdrop-filter: blur(4px);
+}
+.metric-label { font-size: .9rem; color: #7b5e78; font-weight: 750; }
+.metric-value { font-size: 2rem; font-weight: 850; color: #ba68c8; margin-top: 5px; letter-spacing: -.03em; }
+.metric-emoji { font-size: 1.35rem; margin-bottom: 4px; }
+.small-note { color: #6a4c68; font-size: .9rem; }
+
+div[data-testid="stCheckbox"] label { font-size: .92rem; color: #4a3e4e; }
+div.stButton > button {
+  border-radius: 14px; min-height: 2.8rem; font-weight: 700;
+  border: 1px solid rgba(225, 190, 231, 0.6);
+  box-shadow: 0 4px 10px rgba(186, 104, 129, 0.08);
+}
+div[data-testid="stProgressBar"] > div { border-radius: 99px; }
+div[data-testid="stProgressBar"] > div > div { background: linear-gradient(90deg, #f48fb1, #ba68c8); border-radius: 99px; }
+div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.8); border-radius: 16px; border: 1px solid #f8bbd0; }
+
+@media (max-width: 700px) {
+  .block-container { padding-left: .7rem; padding-right: .7rem; }
+  .hero { padding: 17px 12px; border-radius: 24px; }
+  .quest-card { min-height: 170px; padding: 14px 11px 10px; }
+  .quest-title { font-size: .98rem; }
+  .quest-desc { font-size: .82rem; }
+  .metric-card { padding: 14px 8px; border-radius: 22px; }
+  .metric-value { font-size: 1.6rem; }
+}
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
+
+
+def read_records():
+    """저장 파일을 안전하게 읽습니다. 파일이 없거나 손상되면 빈 기록으로 시작합니다."""
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        if not DATA_FILE.exists():
+            return {}
+        with DATA_FILE.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError, TypeError):
+        return {}
+
+
+def write_records(records):
+    """기록 저장 실패가 앱 전체 오류로 이어지지 않도록 처리합니다."""
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        temp_file = DATA_FILE.with_suffix(".tmp")
+        with temp_file.open("w", encoding="utf-8") as f:
+            json.dump(records, f, ensure_ascii=False, indent=2)
+        temp_file.replace(DATA_FILE)
+        return True
+    except OSError:
+        return False
+
+
+def get_today_quests(day_string):
+    """날짜별 기본 퀘스트 4개를 일정하게 선택합니다."""
+    rng = random.Random(day_string)
+    return rng.sample(QUESTS, 4)
+
+
+def calculate_streak(completed_dates, today):
+    """오늘 실천했으면 오늘부터, 아직 실천 전이면 어제부터 연속 기록을 셉니다."""
+    done = set(completed_dates)
+    cursor = today
+    if cursor.isoformat() not in done:
+        cursor = today - timedelta(days=1)
+    streak = 0
+    while cursor.isoformat() in done:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+
+today = date.today()
+today_key = today.isoformat()
+
+# 익명 세션 키: 앱이 열려 있는 동안 기록을 구분합니다.
+if "session_key" not in st.session_state:
+    st.session_state.session_key = uuid.uuid4().hex
+if "quest_override" not in st.session_state:
+    st.session_state.quest_override = {}
+
+records = read_records()
+user_key = st.session_state.session_key
+user_record = records.get(user_key, {"days": {}})
+if not isinstance(user_record, dict):
+    user_record = {"days": {}}
+days = user_record.setdefault("days", {})
+
+if today_key not in days:
+    days[today_key] = {"quests": [q["id"] for q in get_today_quests(today_key)], "completed": []}
+
+today_data = days[today_key]
+if st.session_state.quest_override.get(today_key):
+    today_data["quests"] = st.session_state.quest_override[today_key]
+    valid_ids = set(today_data["quests"])
+    today_data["completed"] = [q for q in today_data.get("completed", []) if q in valid_ids]
+
+quest_by_id = {q["id"]: q for q in QUESTS}
+selected_quests = [quest_by_id[qid] for qid in today_data.get("quests", []) if qid in quest_by_id]
+completed = set(today_data.get("completed", []))
+
+# 헤더와 안내
+st.markdown('<div class="hero">', unsafe_allow_html=True)
+st.markdown('<div class="top-title">🌱 마음 한 걸음 · 일일 퀘스트</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="intro-pill"><strong>오늘의 작은 목표</strong><br>'
+    '<span class="small-note">완벽하게 해내는 것보다, 나를 위해 작은 한 걸음을 내딛는 것이 중요해요.</span></div>',
+    unsafe_allow_html=True,
+)
+
+left, right = st.columns([2.15, 1], gap="large")
+with left:
+    card_cols = st.columns(2, gap="medium")
+    new_completed = set(completed)
+    for idx, quest in enumerate(selected_quests):
+        with card_cols[idx % 2]:
+            is_done = quest["id"] in completed
+            status = "✓ 완료했어요" if is_done else "오늘의 작은 도전"
+            card_colors = ["yellow", "pink", "blue", "mint"]
+            card_color = card_colors[idx % len(card_colors)]
+            st.markdown(
+                f'<div class="quest-card {card_color}"><div class="quest-title">{quest["title"]}</div>'
+                f'<div class="quest-desc">{quest["description"]}</div>'
+                f'<div class="quest-tag">{quest["category"]} · {status}</div></div>',
+                unsafe_allow_html=True,
+            )
+            checked = st.checkbox(
+                "완료 표시",
+                value=is_done,
+                key=f"done_{today_key}_{quest['id']}",
+                help="완료 표시를 바꾸면 기록에 자동 저장됩니다.",
+            )
+            if checked:
+                new_completed.add(quest["id"])
+            else:
+                new_completed.discard(quest["id"])
+
+    today_data["completed"] = [qid for qid in today_data["quests"] if qid in new_completed]
+    completed_count = len(today_data["completed"])
+    total_count = len(selected_quests)
+    completion_rate = int(round(completed_count / total_count * 100)) if total_count else 0
+
+    st.progress(completion_rate / 100 if total_count else 0)
+    st.caption(f"오늘 {total_count}개 중 {completed_count}개 완료 · 달성률 {completion_rate}%")
+
+    b1, b2 = st.columns([1, 1])
+    with b1:
+        if st.button("🎲 퀘스트 다시 뽑기", use_container_width=True):
+            old_done = set(today_data.get("completed", []))
+            new_quests = random.sample(QUESTS, 4)
+            st.session_state.quest_override[today_key] = [q["id"] for q in new_quests]
+            today_data["quests"] = [q["id"] for q in new_quests]
+            # 새로 뽑은 퀘스트는 새로 시작하도록 완료 상태를 초기화합니다.
+            today_data["completed"] = []
+            records[user_key] = user_record
+            if write_records(records):
+                st.toast("새로운 퀘스트를 준비했어요.")
+            st.rerun()
+    with b2:
+        if st.button("오늘 기록 저장", use_container_width=True, type="primary"):
+            records[user_key] = user_record
+            if write_records(records):
+                st.success("오늘의 기록을 저장했어요.")
+            else:
+                st.warning("현재 환경에서 파일을 저장하지 못했어요. 앱 관리자에게 알려주세요.")
+
+with right:
+    st.markdown('<div class="metric-card"><div class="metric-emoji">📈</div><div class="metric-label">일일 퀘스트 달성률</div>'
+                f'<div class="metric-value">{completion_rate}<span style="font-size:1rem">%</span></div></div>', unsafe_allow_html=True)
+    streak_value = calculate_streak([d for d, v in days.items() if v.get("completed")], today)
+    st.markdown('<div class="metric-card"><div class="metric-emoji">🌱</div><div class="metric-label">연속 실천일</div>'
+                f'<div class="metric-value">{streak_value}<span style="font-size:1rem">일</span></div></div>',
+                unsafe_allow_html=True)
+    st.markdown('<div class="metric-card"><div class="metric-emoji">💗</div><div class="metric-label">오늘의 응원</div>'
+                '<div style="margin-top:8px; line-height:1.55; color:#6a4c68;">천천히 가도 괜찮아요.<br>쉬어가는 날도 과정의 일부예요.</div></div>',
+                unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# 완료 상태를 자동 저장합니다.
+records[user_key] = user_record
+if not write_records(records):
+    st.warning("기록 파일을 저장하지 못했습니다. 배포 환경의 쓰기 권한을 확인해 주세요.")
+
+with st.expander("📅 지난 기록 보기"):
+    dated_records = sorted(days.items(), reverse=True)
+    if not dated_records:
+        st.info("아직 기록이 없어요. 오늘의 퀘스트부터 시작해 보세요.")
+    else:
+        for day, data in dated_records[:14]:
+            ids = data.get("quests", [])
+            done_ids = set(data.get("completed", []))
+            count = len([qid for qid in ids if qid in done_ids])
+            total = len(ids)
+            rate = int(round(count / total * 100)) if total else 0
+            st.write(f"**{day}** — {count}/{total}개 완료 ({rate}%)")
+
+st.caption("이 앱은 자기 돌봄을 돕는 도구이며, 괴롭힘이나 심리적 어려움을 혼자 견디라는 뜻은 아니에요. 힘들다면 믿을 수 있는 어른이나 상담 전문가에게 도움을 요청해도 괜찮아요.")
