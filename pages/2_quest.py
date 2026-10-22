@@ -7,9 +7,6 @@ from pathlib import Path
 import streamlit as st
 
 # 마음 한 걸음 — Streamlit Community Cloud용 간단한 퀘스트 앱
-# 참고: Community Cloud의 로컬 파일은 영구 저장이 보장되지 않습니다.
-# 공개 다중 사용자 서비스에서는 사용자별 인증과 외부 DB를 추가하세요.
-
 st.set_page_config(
     page_title="마음 한 걸음 | 일일 퀘스트",
     page_icon="🌱",
@@ -39,7 +36,7 @@ CSS = """
 <style>
 :root { color-scheme: light; }
 
-/* 이미지의 분홍, 주황, 보라 노을빛 느낌을 반영한 부드러운 배경 연출 */
+/* 노을 배경 연출 */
 .stApp {
   background:
     radial-gradient(circle at 85% 15%, rgba(255, 182, 193, 0.45) 0%, transparent 40%),
@@ -50,7 +47,6 @@ CSS = """
 
 .block-container { max-width: 1120px; padding-top: 1.4rem; padding-bottom: 2.2rem; }
 
-/* 히어로 세션 - 석양빛 하늘과 어우러지는 반투명 글래스모피즘 분위기 */
 .hero {
   background: linear-gradient(135deg, rgba(255, 209, 227, 0.85) 0%, rgba(225, 190, 231, 0.85) 50%, rgba(255, 224, 178, 0.85) 100%);
   border: 1px solid rgba(255, 255, 255, 0.7);
@@ -74,21 +70,21 @@ CSS = """
 }
 
 .quest-card {
-  border: 1px solid rgba(255,255,255,0.8); border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.85); border-radius: 18px;
   min-height: 154px; padding: 17px 15px 13px; color: #4a3e4e;
-  box-shadow: 0 9px 18px rgba(186, 104, 129, 0.1);
+  box-shadow: 0 8px 20px rgba(186, 104, 129, 0.08);
   margin-bottom: 9px; position: relative; overflow: hidden;
 }
 .quest-card:before {
   content: ""; position: absolute; left: 13px; right: 13px; top: 7px;
-  height: 7px; background: rgba(255, 255, 255, 0.6); border-radius: 99px;
+  height: 7px; background: rgba(255, 255, 255, 0.55); border-radius: 99px;
 }
 
-/* 이미지 계열에 어울리는 소프트 일몰 컬러 파렛트 */
-.quest-card.yellow { background: linear-gradient(145deg, #ffe0b2 0%, #ffcc80 100%); color: #4e342e; }
-.quest-card.pink { background: linear-gradient(145deg, #f8bbd0 0%, #f48fb1 100%); color: #4a148c; }
-.quest-card.blue { background: linear-gradient(145deg, #e1bee7 0%, #ce93d8 100%); color: #311b92; }
-.quest-card.mint { background: linear-gradient(145deg, #ffd180 0%, #ffab40 100%); color: #3e2723; }
+/* 겹치지 않는 4가지 독자적인 파스텔 노을 색상 파렛트 */
+.quest-card.yellow { background: linear-gradient(145deg, #ffe0b2 0%, #ffcc80 100%); color: #4e342e; } /* 피치 오렌지 */
+.quest-card.pink { background: linear-gradient(145deg, #f8bbd0 0%, #f48fb1 100%); color: #4a148c; }   /* 소프트 핑크 */
+.quest-card.purple { background: linear-gradient(145deg, #e1bee7 0%, #ce93d8 100%); color: #311b92; } /* 라벤더 퍼플 */
+.quest-card.mint { background: linear-gradient(145deg, #b2dfdb 0%, #80cbc4 100%); color: #004d40; }   /* 세이지 민트 */
 
 .quest-title { font-size: 1.06rem; font-weight: 800; margin: 8px 0 7px; line-height: 1.25; }
 .quest-desc { font-size: .86rem; line-height: 1.45; min-height: 42px; }
@@ -106,11 +102,36 @@ CSS = """
 .small-note { color: #6a4c68; font-size: .9rem; }
 
 div[data-testid="stCheckbox"] label { font-size: .92rem; color: #4a3e4e; }
+
+/* 기본 버튼 스타일 */
 div.stButton > button {
   border-radius: 14px; min-height: 2.8rem; font-weight: 700;
-  border: 1px solid rgba(225, 190, 231, 0.6);
+  border: 1px solid rgba(225, 190, 231, 0.8);
+  background: rgba(255, 255, 255, 0.85);
+  color: #5c3c52;
   box-shadow: 0 4px 10px rgba(186, 104, 129, 0.08);
 }
+
+/* 오늘 기록 저장 전용 스타일 (튀는 강렬한 빨간색 대신 분위기에 맞는 소프트 로즈 퍼플 적용) */
+div.stButton > button[kind="secondary"] {
+  border: none;
+}
+div.stButton > button:hover {
+  border-color: #ba68c8;
+  color: #4a148c;
+}
+
+/* 저장 버튼 전용 커스텀 기법 */
+div[data-testid="column"]:nth-child(2) div.stButton > button {
+  background: linear-gradient(135deg, #ec407a 0%, #ab47bc 100%);
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(171, 71, 188, 0.3);
+}
+div[data-testid="column"]:nth-child(2) div.stButton > button:hover {
+  background: linear-gradient(135deg, #d81b60 0%, #8e24aa 100%);
+}
+
 div[data-testid="stProgressBar"] > div { border-radius: 99px; }
 div[data-testid="stProgressBar"] > div > div { background: linear-gradient(90deg, #f48fb1, #ba68c8); border-radius: 99px; }
 div[data-testid="stExpander"] { background: rgba(255, 255, 255, 0.8); border-radius: 16px; border: 1px solid #f8bbd0; }
@@ -130,7 +151,7 @@ st.markdown(CSS, unsafe_allow_html=True)
 
 
 def read_records():
-    """저장 파일을 안전하게 읽습니다. 파일이 없거나 손상되면 빈 기록으로 시작합니다."""
+    """저장 파일을 안전하게 읽습니다."""
     try:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         if not DATA_FILE.exists():
@@ -143,7 +164,7 @@ def read_records():
 
 
 def write_records(records):
-    """기록 저장 실패가 앱 전체 오류로 이어지지 않도록 처리합니다."""
+    """기록 저장 처리"""
     try:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         temp_file = DATA_FILE.with_suffix(".tmp")
@@ -156,13 +177,13 @@ def write_records(records):
 
 
 def get_today_quests(day_string):
-    """날짜별 기본 퀘스트 4개를 일정하게 선택합니다."""
+    """날짜별 기본 퀘스트 4개 선택"""
     rng = random.Random(day_string)
     return rng.sample(QUESTS, 4)
 
 
 def calculate_streak(completed_dates, today):
-    """오늘 실천했으면 오늘부터, 아직 실천 전이면 어제부터 연속 기록을 셉니다."""
+    """연속 실천일 계산"""
     done = set(completed_dates)
     cursor = today
     if cursor.isoformat() not in done:
@@ -177,7 +198,6 @@ def calculate_streak(completed_dates, today):
 today = date.today()
 today_key = today.isoformat()
 
-# 익명 세션 키: 앱이 열려 있는 동안 기록을 구분합니다.
 if "session_key" not in st.session_state:
     st.session_state.session_key = uuid.uuid4().hex
 if "quest_override" not in st.session_state:
@@ -203,7 +223,7 @@ quest_by_id = {q["id"]: q for q in QUESTS}
 selected_quests = [quest_by_id[qid] for qid in today_data.get("quests", []) if qid in quest_by_id]
 completed = set(today_data.get("completed", []))
 
-# 헤더와 안내
+# 헤더
 st.markdown('<div class="hero">', unsafe_allow_html=True)
 st.markdown('<div class="top-title">🌱 마음 한 걸음 · 일일 퀘스트</div>', unsafe_allow_html=True)
 st.markdown(
@@ -216,12 +236,16 @@ left, right = st.columns([2.15, 1], gap="large")
 with left:
     card_cols = st.columns(2, gap="medium")
     new_completed = set(completed)
+    
+    # 겹침이 전혀 없도록 4개의 고유 클래스를 직접 매핑
+    card_colors = ["yellow", "pink", "purple", "mint"]
+    
     for idx, quest in enumerate(selected_quests):
         with card_cols[idx % 2]:
             is_done = quest["id"] in completed
             status = "✓ 완료했어요" if is_done else "오늘의 작은 도전"
-            card_colors = ["yellow", "pink", "blue", "mint"]
-            card_color = card_colors[idx % len(card_colors)]
+            card_color = card_colors[idx]
+            
             st.markdown(
                 f'<div class="quest-card {card_color}"><div class="quest-title">{quest["title"]}</div>'
                 f'<div class="quest-desc">{quest["description"]}</div>'
@@ -250,18 +274,17 @@ with left:
     b1, b2 = st.columns([1, 1])
     with b1:
         if st.button("🎲 퀘스트 다시 뽑기", use_container_width=True):
-            old_done = set(today_data.get("completed", []))
             new_quests = random.sample(QUESTS, 4)
             st.session_state.quest_override[today_key] = [q["id"] for q in new_quests]
             today_data["quests"] = [q["id"] for q in new_quests]
-            # 새로 뽑은 퀘스트는 새로 시작하도록 완료 상태를 초기화합니다.
             today_data["completed"] = []
             records[user_key] = user_record
             if write_records(records):
                 st.toast("새로운 퀘스트를 준비했어요.")
             st.rerun()
     with b2:
-        if st.button("오늘 기록 저장", use_container_width=True, type="primary"):
+        # type="primary"를 제거하여 브라우저 기본 빨간색을 없애고 커스텀 CSS 그라데이션이 적용되도록 수정
+        if st.button("오늘 기록 저장", use_container_width=True):
             records[user_key] = user_record
             if write_records(records):
                 st.success("오늘의 기록을 저장했어요.")
@@ -281,10 +304,9 @@ with right:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 완료 상태를 자동 저장합니다.
 records[user_key] = user_record
 if not write_records(records):
-    st.warning("기록 파일을 저장하지 못했습니다. 배포 환경의 쓰기 권한을 확인해 주세요.")
+    st.warning("기록 파일을 저장하지 못했습니다.")
 
 with st.expander("📅 지난 기록 보기"):
     dated_records = sorted(days.items(), reverse=True)
