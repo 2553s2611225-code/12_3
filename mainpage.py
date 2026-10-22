@@ -168,8 +168,7 @@ st.markdown("""
 .site-card {
     border-radius: 23px;
     padding: 24px 21px;
-    height: 265px;
-    box-sizing: border-box;
+    min-height: 265px;
     border: 1px solid rgba(72, 93, 70, 0.12);
     box-shadow: 0 7px 20px rgba(62, 80, 61, 0.045);
     margin-bottom: 12px;
@@ -185,6 +184,7 @@ st.markdown("""
 
 .rest {
     background: linear-gradient(150deg, #E5F1F5, #D7E9EF);
+    padding: 20px 21px;
 }
 
 .site-emoji {
@@ -302,8 +302,7 @@ div[data-testid="stLinkButton"] a:hover {
     }
 
     .site-card {
-        height: auto;
-        min-height: 265px;
+        min-height: auto;
         padding: 21px;
     }
 
