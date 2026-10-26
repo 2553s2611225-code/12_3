@@ -5,7 +5,7 @@ import streamlit as st
 # 1. 페이지 기본 설정 및 디자인
 # ==========================================
 st.set_page_config(
-    page_title="취미 모아 - 맞춤 여가 추천",
+    page_title="마음 치료 취미 모아 - 맞춤 여가 추천",
     page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -324,8 +324,8 @@ HOBBIES = [
 # ==========================================
 # 3. 사이드바 - 검색 및 필터 설정
 # ==========================================
-st.sidebar.title("🎨 취미 모아")
-st.sidebar.caption("나에게 딱 맞는 여가 시간을 찾아보세요.")
+st.sidebar.title("🧘‍♀️ 마음 치료 취미 모아")
+st.sidebar.caption("지친 마음을 달래줄 나만의 가치 있는 시간을 찾아보세요.")
 st.sidebar.divider()
 
 # 카테고리 선택
@@ -340,14 +340,14 @@ filter_companion = st.sidebar.radio("동반자", ["상관없음", "혼자", "함
 st.sidebar.divider()
 
 # Gemini AI 비서 섹션
-st.sidebar.subheader("🤖 AI 취미 추천")
+st.sidebar.subheader("🤖 AI 취미 코치")
 use_ai = st.sidebar.checkbox("Gemini AI 기반 맞춤 추천 받기")
 
 # ==========================================
 # 4. 메인 화면 구성
 # ==========================================
-st.title("🌱 새로운 여가 & 취미 추천")
-st.write("일상의 지루함을 깨뜨릴 나만의 취미를 찾아보세요.")
+st.title("💖 마음 치료 취미 모아")
+st.write("일상의 스트레스를 비우고 마음의 평온을 되찾아주는 취미 활동을 만나보세요.")
 
 # 조건 기반 필터링
 filtered_hobbies = HOBBIES.copy()
@@ -373,35 +373,37 @@ with col2:
 
 # Gemini AI 처리
 if use_ai:
-    st.info("💡 AI 코치가 당신의 상황에 딱 맞는 독창적인 취미를 제안합니다.")
-    user_prompt = st.text_input("현재 기분이나 관심사를 적어주세요. (예: 그림 그리는 걸 좋아하지만 똥손이라 걱정돼)", "")
+    st.info("💡 AI 코치가 당신의 마음 상황에 딱 맞는 취미를 제안합니다.")
+    user_prompt = st.text_input("현재 기분이나 마음 상태를 적어주세요. (예: 번아웃이 와서 편안히 힐링하고 싶어)", "")
     
     if st.button("AI 맞춤 분석 실행", type="primary"):
         if not user_prompt:
-            st.warning("기분이나 상태를 입력해 주세요!")
+            st.warning("현재 심정이나 기분을 입력해 주세요!")
         else:
-            try:
-                from google import genai
-                
-                api_key = st.secrets.get("GEMINI_API_KEY")
-                if not api_key:
-                    st.error("🔑 Secrets에 GEMINI_API_KEY가 설정되지 않았습니다.")
-                else:
-                    client = genai.Client(api_key=api_key)
+            api_key = st.secrets.get("GEMINI_API_KEY")
+            if not api_key:
+                st.error("🔑 Secrets에 GEMINI_API_KEY가 설정되지 않았습니다.")
+            else:
+                with st.spinner("AI가 마음 치료에 적합한 취미를 분석 중입니다..."):
+                    ai_result = None
+                    prompt_text = f"사용자 상태: '{user_prompt}'. 이 사용자의 마음 치료와 힐링에 어울리는 구체적인 취미 2가지를 추천해줘. 각 취미별로 이름, 추천 이유, 시작하는 법 1줄을 친절하게 작성해줘."
                     
-                    with st.spinner("AI가 최적의 취미를 찾고 있습니다..."):
-                        prompt_text = f"사용자 상태: '{user_prompt}'. 이 사용자에게 어울리는 그림/미술, 운동, 음악, 공예 등의 분야 중 구체적인 취미 2가지를 추천해줘. 각 취미별로 이름, 추천 이유, 시작하는 법 1줄을 친절하게 작성해줘."
+                    try:
+                        from google import genai
+                        client = genai.Client(api_key=api_key)
                         response = client.models.generate_content(
-                            model="gemini-2.5-flash-lite",
+                            model="gemini-2.5-flash",
                             contents=prompt_text
                         )
-                        
+                        ai_result = response.text
+                    except Exception as e:
+                        st.error(f"AI 연동 오류 발생: {e}")
+
+                    if ai_result:
                         st.markdown("---")
-                        st.markdown("### 🤖 Gemini AI 추천 결과")
-                        st.write(response.text)
+                        st.markdown("### 🤖 Gemini AI 맞춤 추천 결과")
+                        st.write(ai_result)
                         st.markdown("---")
-            except Exception as e:
-                st.error(f"AI 추천을 가져오는 중 오류가 발생했습니다: {e}")
 
 # 취미 목록 출력
 if not filtered_hobbies:
@@ -437,26 +439,22 @@ else:
             # --- 시작하는 3단계 (체크리스트 + 진행도) ---
             st.write("**🚀 시작하는 3단계 체크리스트**")
             
-            # 체크 해제/체크 상태 관리
             completed_count = 0
             total_steps = len(hobby['steps'])
             
             for idx, step in enumerate(hobby['steps'], 1):
                 key = f"chk_{hobby['id']}_{idx}"
-                # 체크박스 생성
                 is_checked = st.checkbox(f"{idx}단계: {step}", key=key)
                 if is_checked:
                     completed_count += 1
             
-            # 진행도 calculation & progress bar
             progress_ratio = completed_count / total_steps
             st.progress(progress_ratio)
             
-            # 진행 상태 텍스트
             if completed_count == total_steps:
                 st.success(f"🎉 축하합니다! {hobby['name']} 입문 준비가 완료되었습니다!")
             else:
                 st.caption(f"진행도: {completed_count}/{total_steps} 단계 완료 ({int(progress_ratio * 100)}%)")
 
 st.markdown("---")
-st.caption("© 2026 취미 모아 - Streamlit으로 제작된 부드럽고 가벼운 여가 추천 앱")
+st.caption("© 2026 마음 치료 취미 모아 - Streamlit으로 제작된 힐링 여가 추천 앱")
